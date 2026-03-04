@@ -1,0 +1,4 @@
+*.xml
+*.map
+.idea/
+__pycache__/
