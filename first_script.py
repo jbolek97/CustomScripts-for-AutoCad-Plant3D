@@ -12,5 +12,5 @@ from varmain.custom import *
 
 # (testacpscript "first_script")
 
-def first_script(s, ID = "first_script", **kw):
-    o2 = TorusSector(s, 100, 20, 90, 270)
+def first_script(s, D=80, ID = "first_script", **kw):
+    o2 = TorusSector(s, diameter=110,thickness=10, angle_start=30, angle_end=110)

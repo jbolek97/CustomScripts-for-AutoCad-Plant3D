@@ -120,7 +120,7 @@ class Box(ShapeObject):
 
     def __init__(self, s: Any, length: float, width: float, height: float):
         o1 = ShapeObject(
-            BOX(s, L=length, W=width, H=height)
+            BOX(s, L=width, W=height, H=length)
         ).translate(z=height / 2)
 
         super().__init__(o1.obj)
@@ -164,8 +164,8 @@ class Cylinder(ShapeObject):
         else:
             r2 = ellipse_diameter / 2
             o1 = ShapeObject(
-                CYLINDER(s, R1=r1, R2=r2, H=height, O=offset)
-            )
+                CYLINDER(s, R1=r1, R2=r2, H=height, O=offset
+            ))
 
         super().__init__(o1.obj)
 
@@ -209,6 +209,30 @@ class Cone(ShapeObject):
         super().__init__(o1.obj)
 
 
+class Torus(ShapeObject):
+    """
+    Represents a torus (doughnut-shaped) object.
+
+    Args:
+        s (Any): Context object, must be present ever.
+        diameter (float): The major diameter, measured between the tube's centerlines.
+        thickness (float): The thickness of the tube itself.
+
+    Attributes:
+        obj: The underlying geometric representation inherited from ShapeObject.
+    """
+
+    def __init__(self, s: Any, diameter: float, thickness: float):
+        r1 = diameter / 2
+        r2 = thickness / 2
+
+        o1 = ShapeObject(
+            TORUS(s, R1=r1, R2=r2)
+        )
+
+        super().__init__(o1.obj)
+
+
 class ChamferCylinder(ShapeObject):
     """
     Represents a cylinder with chamfered (beveled) edges.
@@ -232,6 +256,7 @@ class ChamferCylinder(ShapeObject):
     Attributes:
         obj: The underlying geometric representation inherited from ShapeObject.
     """
+
     def __init__(self,
                  s: Any,
                  diameter: float,
@@ -266,34 +291,6 @@ class ChamferCylinder(ShapeObject):
         super().__init__(o1.obj)
 
 
-class Torus(ShapeObject):
-    """
-    Represents a torus (doughnut-shaped) object.
-
-    This class initializes a torus based on specified outer and inner diameters.
-    The object is centered at the origin (0, 0, 0) with its central axis
-    along the Z-axis.
-
-    Args:
-        s (Any): Context object, must be present ever.
-        outer_diameter (float): The total width of the torus at its widest point.
-        inner_diameter (float): The diameter of the hole in the center.
-
-    Attributes:
-        obj: The underlying geometric representation inherited from ShapeObject.
-    """
-
-    def __init__(self, s: Any, outer_diameter: float, inner_diameter: float):
-        r1 = outer_diameter / 2
-        r2 = inner_diameter / 2
-
-        o1 = ShapeObject(
-            TORUS(s, R1=r1, R2=r2)
-        )
-
-        super().__init__(o1.obj)
-
-
 class CylinderSector(ShapeObject):
     def __init__(self,
                  s: Any,
@@ -305,7 +302,10 @@ class CylinderSector(ShapeObject):
     ):
         if angle_start != angle_end:
             o1 = Cylinder(
-                s, diameter=diameter, height=height, wall_thickness=wall_thickness
+                s,
+                diameter=diameter,
+                height=height,
+                wall_thickness=wall_thickness
             ).cut_sector(
                 s,
                 radius=diameter / 2,
@@ -314,7 +314,12 @@ class CylinderSector(ShapeObject):
                 angle_end=angle_end
             )
         else:
-            o1 = Cylinder(s, diameter=diameter, height=height, wall_thickness=wall_thickness)
+            o1 = Cylinder(
+                s,
+                diameter=diameter,
+                height=height,
+                wall_thickness=wall_thickness
+            )
 
         super().__init__(o1.obj)
 
@@ -327,15 +332,23 @@ class TorusSector(ShapeObject):
                  angle_start: float = 0.0,
                  angle_end: float = 0.0
     ):
-        o1 = Torus(s, outer_diameter=diameter, inner_diameter=thickness).translate(z=thickness / 2)
-
         if angle_start != angle_end:
-            o1.cut_sector(
+            o1 = Torus(
                 s,
-                radius=(diameter / 2) + (thickness / 2),
+                diameter=diameter,
+                thickness=thickness
+            ).translate(
+                z=thickness / 2
+            ).cut_sector(
+                s,
+                radius=diameter,
                 height=thickness,
                 angle_start=angle_start,
                 angle_end=angle_end
+            ).translate(
+                z=-thickness / 2
             )
+        else:
+            o1 = Torus(s, diameter=diameter, thickness=thickness)
 
         super().__init__(o1.obj)
