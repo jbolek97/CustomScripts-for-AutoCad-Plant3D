@@ -57,6 +57,50 @@ class ShapeObject:
         """
         self.obj.erase()
 
+    def subtract(self, others):
+        if not isinstance(others, list):
+            others = [others]
+
+        for other in others:
+            self.obj.subtractFrom(other.obj)
+            other.erase()
+        return self
+
+    def rotate_x(self, angle: float):
+        self.obj.rotateX(angle)
+        return self
+
+    def rotate_y(self, angle: float):
+        self.obj.rotateY(angle)
+        return self
+
+    def rotate_z(self, angle: float):
+        self.obj.rotateZ(angle)
+        return self
+
+    def cut_sector(self, s, radius: float, height: float, angle_start: float, angle_end: float):
+        sector = Cylinder(s, diameter=radius * 2, height=height)
+
+        if angle_start > angle_end:
+            angle_start -= 360
+
+        sector_angle = angle_end - angle_start
+
+        while sector_angle >= 90:
+            cut_box = Box(s, length=radius * 2, width=radius * 2, height=height).translate(x=radius, y=radius).rotate_z(angle_end - 90)
+            sector_angle -= 90
+            angle_end -= 90
+            sector.subtract(cut_box)
+
+        if sector_angle > 0:
+            cut_box = Box(s, length=radius * 2, width=radius * 2, height=height).translate(x=radius, y=radius)
+            cut_box_2 = Box(s, length=radius * 2, width=radius * 2, height=height).translate(x=radius, y=radius).rotate_z(sector_angle)
+            cut_box.subtract(cut_box_2)
+            cut_box.rotate_z(angle_start)
+            sector.subtract(cut_box)
+        self.subtract(sector)
+        return self
+
 class Box(ShapeObject):
     """
     Represents a 3D box shape object.
@@ -246,5 +290,52 @@ class Torus(ShapeObject):
         o1 = ShapeObject(
             TORUS(s, R1=r1, R2=r2)
         )
+
+        super().__init__(o1.obj)
+
+
+class CylinderSector(ShapeObject):
+    def __init__(self,
+                 s: Any,
+                 diameter: float,
+                 height: float,
+                 wall_thickness: float = 0.0,
+                 angle_start: float = 0.0,
+                 angle_end: float = 0.0
+    ):
+        if angle_start != angle_end:
+            o1 = Cylinder(
+                s, diameter=diameter, height=height, wall_thickness=wall_thickness
+            ).cut_sector(
+                s,
+                radius=diameter / 2,
+                height=height,
+                angle_start=angle_start,
+                angle_end=angle_end
+            )
+        else:
+            o1 = Cylinder(s, diameter=diameter, height=height, wall_thickness=wall_thickness)
+
+        super().__init__(o1.obj)
+
+
+class TorusSector(ShapeObject):
+    def __init__(self,
+                 s: Any,
+                 diameter: float,
+                 thickness: float,
+                 angle_start: float = 0.0,
+                 angle_end: float = 0.0
+    ):
+        o1 = Torus(s, outer_diameter=diameter, inner_diameter=thickness).translate(z=thickness / 2)
+
+        if angle_start != angle_end:
+            o1.cut_sector(
+                s,
+                radius=(diameter / 2) + (thickness / 2),
+                height=thickness,
+                angle_start=angle_start,
+                angle_end=angle_end
+            )
 
         super().__init__(o1.obj)

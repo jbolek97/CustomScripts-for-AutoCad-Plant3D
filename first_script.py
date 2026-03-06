@@ -13,4 +13,4 @@ from varmain.custom import *
 # (testacpscript "first_script")
 
 def first_script(s, ID = "first_script", **kw):
-    o1 = ChamferCylinder(s, diameter=50, height=80, chamfer=5, chamfer_angle=45, double_chamfer=True)
+    o2 = TorusSector(s, 100, 20, 90, 270)
