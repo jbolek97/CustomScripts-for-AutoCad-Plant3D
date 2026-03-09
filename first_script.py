@@ -1,4 +1,6 @@
 from primitives import *
+from fasteners.nuts import *
+from gradior_supports.components.u_bolt_701 import UBolt701
 
 from aqa.math import *
 from varmain.primitiv import *
@@ -13,4 +15,4 @@ from varmain.custom import *
 # (testacpscript "first_script")
 
 def first_script(s, D=80, ID = "first_script", **kw):
-    o2 = TorusSector(s, diameter=110,thickness=10, angle_start=30, angle_end=110)
+    o1 = UBolt701(s,50, 0, 5)

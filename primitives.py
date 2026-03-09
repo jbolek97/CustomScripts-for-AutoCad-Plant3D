@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional, Any
 import math
 
@@ -6,6 +7,23 @@ from varmain.primitiv import *
 from varmain.var_basic import *
 from varmain.custom import *
 
+
+class Point3D:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def as_tuple(self):
+        return (self.x, self.y, self.z)
+
+    @staticmethod
+    def set_port(s, point: Point3D, direction: Point3D):
+        s.setPoint(point.as_tuple(), direction.as_tuple())
+
+    @staticmethod
+    def set_dimension(s, name: str, start: Point3D, end: Point3D):
+        s.setLinearDimension(name, start.as_tuple(), end.as_tuple())
 
 class ShapeObject:
     def __init__(self, obj):
